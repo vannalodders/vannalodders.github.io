@@ -1,0 +1,27 @@
+name: "Canada-Tweets"
+output_dir: "."
+navbar:
+  title: "Canada Tweets"
+  left:
+    - text: "Project Overview"
+      href: index.html
+    - text: "Key Party Summary"
+      menu:
+        - text: "Account Prevalence"
+          href: account.prevalence.html
+        - text: "Volume and Activity Level"
+          href: volume.activity.html
+        - text: "Popularity"
+          href: popularity.html
+    - text: "Trending Issues"
+      href: trending.issues.html
+    - text: "Key Issue Sentiment" 
+      menu:     
+        - text: "Issue-Specific Positivity"
+          href: sentiment.html
+        - text: "Prevalence of Toxic Language"
+          href: toxicity.html
+    - text: "Final Project"
+      href: final.project.html
+    - text: "Appendix"
+      href: appendix.html
