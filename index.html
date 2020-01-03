@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Project Overview</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/journal.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 61px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+.section h2 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+.section h3 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+.section h4 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+.section h5 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+.section h6 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Canada Tweets</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Project Overview</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Key Party Summary
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="account.prevalence.html">Account Prevalence</a>
+    </li>
+    <li>
+      <a href="volume.activity.html">Volume and Activity Level</a>
+    </li>
+    <li>
+      <a href="popularity.html">Popularity</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="trending.issues.html">Trending Issues</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Key Issue Sentiment
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="sentiment.html">Issue-Specific Positivity</a>
+    </li>
+    <li>
+      <a href="toxicity.html">Prevalence of Toxic Language</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="final.project.html">Final Project</a>
+</li>
+<li>
+  <a href="appendix.html">Appendix</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Project Overview</h1>
+
+</div>
+
+
+<div id="twitter-campaigns-of-the-2019-canadian-federal-election" class="section level2">
+<h2>Twitter Campaigns of the 2019 Canadian Federal Election</h2>
+<p><br></p>
+<div id="the-projects" class="section level4">
+<h4>The Projects</h4>
+<p>This website serves two primary purposes. First, I seek to provide an easily accessible and in-depth look at the twitter campaigns of candidates for Members of Parliament over the course of the 2019 Canadian Federal Election. By navigating through the above tabs, you can access basic descriptive statistics on each of the key political party’s twitter activity (<em>Key Party Summary</em>) including account prevalence, volume and activity level, and popularity, the top trending hashtags and political issues related to the election (<em>Trending Issues</em>), and the sentiment of each party’s tweets towards key issues (<em>Key Issue Sentiment</em>) including issue-specific sentiment of tweets (<em>Issue Specific Positivity</em>) and the degree to which toxic language is employed in each party’s tweets towards select issues using the PeRspective package (<em>Toxicity in Tweets</em>). <br> <br> The second core function of this website is to present the final project for my Master’s degree in Political Science from Simon Fraser University. The project investigates how gender and visible ethnic minority status influence utilization of Twitter as a self-promoting platform upon which to campaign. Additionally, it examines the heterogenous effects of gender and ethnic minority status on the relationship between engagement and electoral sucess. It focuses on the 1,663 candidates running across 5 major political parties (the LPC, CPC, NDP, GPC, and PPC) in the 2019 Canadian federal election. All-in-all, 1,254 out of 1,663 (75.41%) of these candidates have an active Twitter account not including generic riding association accounts. See the (<em>Final Project</em>) for the complete project. <br> <br></p>
+</div>
+<div id="interacting-with-visualizations" class="section level4">
+<h4>Interacting with Visualizations</h4>
+<p>Many of the visualizations provided are interactive. To utilize interactive functionalities, simply hover over the plots. In doing so, you will find that the top right corners of each plot contains options to zoom in, zoom out, pan, and download the plot as a png. To alter which parties or data series are shown in each visualization, simply hover over and click on the legend labels to add and remove parties (or whatever variable corresponds to the legend, such as gender). Additionally, you can hover over each of the data points in any plot to gain additional information (such as the precise x and/or y value corrresponding to that data point). In order to compare values of y across a set values of x (e.g.for each party), navigate to the top corner of the plot and select the “compare data on hover” option. Next, hover over a data point that corresponds to an x value you are interested in to compare across values of y. <br> <br></p>
+</div>
+<div id="about-the-author" class="section level4">
+<h4>About the Author</h4>
+<p>All data collection, analyses, and the creation of this website have been done by Vanna Lodders. I am a graduate student completing my Master’s in Political Science at Simon Fraser University. In addition to my academic pursuits, I use her knowledge of quantitative methods and data science skills working for a national public opinion polling and market research company in Vancouver. You may notice that the website pays special attention to gender differences in Twitter campaigns in addition to differences across parties. With an extended minor in Gender, Sexuality, and Women’s Studies, I have always incorporated gender dimensions into my political analysis. Overall, this website has been created to show importannt gender and ideological differences in the campaign strategies of candidates for the House of Commons, in addition to housing my final Master’s project. <br> <br> Further information regarding analyses and details on data collection can be accessed through the <em>Appendices</em> tab. If you have any questions or comments about the website, analyses, data collection, or otherwise, please contact <em><a href="mailto:vlodders@sfu.ca" class="email">vlodders@sfu.ca</a></em>.<br />
+<br> <a href="https://politicsofextremism.com/people/">Learn more about my research</a><br />
+<a href="https://politicsofextremism.com">Learn more about the Extremism and Democracy Research Group</a></p>
+<p><br></p>
+</div>
+<div id="party-level-account-prevalence-summary" class="section level4">
+<h4>Party-Level Account Prevalence Summary</h4>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Party
+</th>
+<th style="text-align:right;">
+Candidates Running (#)
+</th>
+<th style="text-align:right;">
+Candidates Running (%)
+</th>
+<th style="text-align:right;">
+Have Twitter (#)
+</th>
+<th style="text-align:right;">
+Have Twitter (%)
+</th>
+<th style="text-align:left;">
+# of Tweets
+</th>
+<th style="text-align:left;">
+Proportion of Tweets
+</th>
+</tr>
+</thead>
+<tbody>
+<tr grouplength="3">
+<td colspan="7" style="background-color: #8b1a1a; color: #fff;">
+<strong>Liberal Party</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Women
+</td>
+<td style="text-align:right;">
+133
+</td>
+<td style="text-align:right;">
+39.35
+</td>
+<td style="text-align:right;">
+110
+</td>
+<td style="text-align:right;">
+82.71
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Men
+</td>
+<td style="text-align:right;">
+205
+</td>
+<td style="text-align:right;">
+60.65
+</td>
+<td style="text-align:right;">
+172
+</td>
+<td style="text-align:right;">
+83.90
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Total
+</td>
+<td style="text-align:right;">
+338
+</td>
+<td style="text-align:right;">
+100.00
+</td>
+<td style="text-align:right;">
+282
+</td>
+<td style="text-align:right;">
+83.43
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr grouplength="3">
+<td colspan="7" style="background-color: #36648B; color: #fff;">
+<strong>Conservative Party</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Women
+</td>
+<td style="text-align:right;">
+104
+</td>
+<td style="text-align:right;">
+30.77
+</td>
+<td style="text-align:right;">
+80
+</td>
+<td style="text-align:right;">
+76.92
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Men
+</td>
+<td style="text-align:right;">
+234
+</td>
+<td style="text-align:right;">
+69.23
+</td>
+<td style="text-align:right;">
+191
+</td>
+<td style="text-align:right;">
+81.62
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Total
+</td>
+<td style="text-align:right;">
+338
+</td>
+<td style="text-align:right;">
+100.00
+</td>
+<td style="text-align:right;">
+271
+</td>
+<td style="text-align:right;">
+80.18
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr grouplength="3">
+<td colspan="7" style="background-color: #CD6600; color: #fff;">
+<strong>New Democratic Party</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Women
+</td>
+<td style="text-align:right;">
+164
+</td>
+<td style="text-align:right;">
+48.52
+</td>
+<td style="text-align:right;">
+111
+</td>
+<td style="text-align:right;">
+67.68
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Men
+</td>
+<td style="text-align:right;">
+174
+</td>
+<td style="text-align:right;">
+51.48
+</td>
+<td style="text-align:right;">
+128
+</td>
+<td style="text-align:right;">
+73.56
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Total
+</td>
+<td style="text-align:right;">
+338
+</td>
+<td style="text-align:right;">
+100.00
+</td>
+<td style="text-align:right;">
+239
+</td>
+<td style="text-align:right;">
+70.71
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr grouplength="3">
+<td colspan="7" style="background-color: #556B2F; color: #fff;">
+<strong>Green Party</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Women
+</td>
+<td style="text-align:right;">
+156
+</td>
+<td style="text-align:right;">
+46.43
+</td>
+<td style="text-align:right;">
+92
+</td>
+<td style="text-align:right;">
+58.94
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Men
+</td>
+<td style="text-align:right;">
+180
+</td>
+<td style="text-align:right;">
+53.57
+</td>
+<td style="text-align:right;">
+112
+</td>
+<td style="text-align:right;">
+62.22
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Total
+</td>
+<td style="text-align:right;">
+336
+</td>
+<td style="text-align:right;">
+100.00
+</td>
+<td style="text-align:right;">
+204
+</td>
+<td style="text-align:right;">
+60.71
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr grouplength="3">
+<td colspan="7" style="background-color: #000; color: #fff;">
+<strong>People’s Party</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Women
+</td>
+<td style="text-align:right;">
+55
+</td>
+<td style="text-align:right;">
+17.57
+</td>
+<td style="text-align:right;">
+48
+</td>
+<td style="text-align:right;">
+87.27
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Men
+</td>
+<td style="text-align:right;">
+258
+</td>
+<td style="text-align:right;">
+82.43
+</td>
+<td style="text-align:right;">
+210
+</td>
+<td style="text-align:right;">
+81.40
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Total
+</td>
+<td style="text-align:right;">
+313
+</td>
+<td style="text-align:right;">
+100.00
+</td>
+<td style="text-align:right;">
+258
+</td>
+<td style="text-align:right;">
+82.43
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
