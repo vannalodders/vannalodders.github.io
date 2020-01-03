@@ -66,3 +66,19 @@ kable(data_table) %>%
 
 ```
 
+```{r, echo = FALSE, warning = FALSE}
+##BAR CHART OF PROPORTION CANDIDATES RUNNING THAT HAVE TWITTER ACCT
+#whole country
+prop_cntry <- handles %>%
+  group_by(party) %>%
+  summarize(prop = sum(!is.na(screen_name)) / sum(!is.na(riding))) %>%
+  na.omit() %>%
+  ggplot(aes(x=party, y=prop, fill = party)) +
+    geom_bar(stat="identity", colour="black") +
+    scale_fill_manual(values= c("steelblue4", "darkolivegreen4", "firebrick4", "darkorange3", "gray0")) +
+  theme(legend.position = "none") +
+  labs(x = "Party",
+       y = "Proportion of Announced Candidates With Twitter Account",
+       title = 'Proportion of Candidate Twitter Accounts by Party')
+ggplotly(prop_cntry)
+```
