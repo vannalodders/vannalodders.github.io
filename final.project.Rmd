@@ -1,0 +1,9 @@
+---
+title: "Twitter as a Gendered Political Arena: How Candidate Gender Influences Engagement and Vote Outcomes"
+author: "Vanna Lodders"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```

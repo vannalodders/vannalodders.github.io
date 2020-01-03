@@ -1,0 +1,159 @@
+---
+title: "Toxicity in Candidate Tweets"
+output:
+  html_document:
+    theme: journal
+---
+```{r global, include = FALSE}
+#load data
+final <- readRDS("/Volumes/LaCie Rugged/Tweets/final_master_tweets.rds")
+hashtag_dfm <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm.rds")
+handles <- read.csv("/Volumes/LaCie Rugged/Tweets/master_handles.csv")
+handles <- handles[,-1]
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000", "#006666", "#000066", "#330066", "#660066", "#660033", "#606060", "#003366", "#666600")
+imm_final <- final %>%
+  filter(immigration >= 1)
+indig_final <- final %>%
+  filter(indigenous >= 1)
+
+```
+
+## Measuring Toxicity, Threats, and Attacks on Identity
+#### Overview and Introduction
+
+While we can measure the overall sentiment of tweets using basic bag-of-words approaches to identify the proportion of negative versus positive words surrounding keywords, we can also perform more nuanced analysis of the sentiment of text using the PeRspective API. Using several trained machine learning models, we can measure the perceived impact of a comment (in this case, tweet) on a conversation. This package has been specifically designed to analyze "comments" or in other words "a single post to a web page's comments section, a forum post, a message to a mailing list, a chat message...". The models used to score comments are Convolutional Neural Network (CNN) trained models with GloVe work embeddings. They have been created using thousands of comments from online forums such as Wikipedia and New York Times. Each of these comments has been human-coded to train the models. The PeRspective API has several models, including alpha models and experimental models. For the purpose of this analysis, we will be using the alpha 'TOXICITY' model along with two experimental models: 'IDENTITY_ATTACK' and 'THREAT'. Additionally, the 'SEXUALLY_EXPLICIT' and 'FLIRTATION' experimental models will be explored specifically in relation to tweets that mention women candidates.
+
+#### The Models 
+The models mentioned above are specified below:
+
+* TOXICITY
+  + rude, disrespectful, or unreasonable comment that is likely to make people leave a discussion
+* IDENTITY_ATTACK
+  + negative or hateful comments targeting someone because of their identity
+* THREAT
+  + describes an intention to inflict pain, injury, or violence against an individual or group
+* SEXUALLY_EXPLICIT
+  + contains references to sexual acts, body parts, or other lewd content
+* FLIRTATION
+  + pickup lines, complimenting appearance, subtle sexual innuendos, etc.
+
+Each of these models score individual comments on a continuous probability scale from 0 to 1. The models return "model attribute scores" for each tweet where a higher value from 0 to 1 indicates a greater likelihood of the attribute level. In other words, the model predicts the probability that a tweet, for example, will be perceived as rude, disrespectful, or unreasonable (TOXICITY). Using these scores, we can investigate which topics elicit higher toxicity/threat/identity_attack scores and from who, whether men or women are more likely to engage in toxic language, the parties with the most candidates using toxic language, and more. Below I investigate each of the core issues outlined in the key issue sentiment section: the economy, immigration, the environment, indigenous issues, and gender and feminism. Tweets have been grouped by topic according to the following custom topic dictionary (note french and english tweets are both scored using PeRspective):
+
+#### Custom English Topic Dictionary
+* Immigration
+  + immigrant(s), immigrate, immigration, immigrations
+  + migrant, migrate, migration
+  + refuge, refugee, refugees, border
+* Economy
+  + economic(s), economically, economy
+  + job(s), employ, employee, employer, employment
+  + gdp, worker(s), workforce, workplace
+  + tax, taxation, taxable, taxes
+  + budget, budget2019, business, businesses
+* Environment
+  + environment(al), environmentalist, environmentally
+  + climate, global warming, pipeline(s), sustainability, sustainable
+  + carbon, kinder morgan, transmountain, trans mountain
+* Indigenous Issues
+  + indigenous, native, metis, inuit, first nation(s), firstnation(s), aboriginal
+  + treaty, chief, white paper, self government, reconciliation
+* Gender/Feminism
+  + gender, feminism, feminist, women(s), girl, woman
+
+### Custom French Topic Dictionary
+* Immigration
+  + immigrant(s), immigrate, immigration, immigrations, l'immigration
+  + migration, migrant, migrateur, migratoire
+  + refuge, refugee, refugees, border
+* Economy
+  + economic(s), economically, economy, economie
+  + job, emploi, emplois, employer(s), employeur, pib
+  + ouvrir, ouvrier, workforce, workplace
+  + tax, taxation, taxable, taxes, taxer
+  + budget, budget2019, business, businesses impôt, impôts
+* Environment
+  + environment(al), environmentalist, environnement, environnemental
+  + environnementaliste, environnementalistes, climat, climate, climatechange, climate change
+  + global warming, pipeline, sustainable, sustainability, durabilité
+  + carbon, carbone, carbone taxe, kinder morgan, transmountain, trans mountain
+* Indigenous Issues
+  + indigène, indigenous, metis, inuit, inuites, inuits, first nation(s), firstnation(s), aboriginal
+  + traité, treaty, chief, white paper, self government, reconciliation, réconciliation
+* Gender/Feminism
+  + gender, sexes, féminisme, féministe, femme, women, girl, fille, woman
+
+## Tweets on Immigration
+#### Measuring Toxicity, Threats, and Identity Attacks
+
+```{r echo = FALSE, warning = FALSE}
+##TOXICITY IN IMM TWEETS
+tox_imm <- readRDS("/Volumes/LaCie Rugged/Tweets/tox_imm.rds")
+imm_final <- left_join(imm_final, tox_imm, by = c("status_id" = "text_id"))
+
+imm_tox_gg <- imm_final %>%
+  filter(party == "PPC" | party == "CPC" | party == "LPC" | party == "NDP" | party == "GPC") %>%
+  ggplot(aes(x = TOXICITY)) +
+  geom_density(aes(group = party, colour = party))+
+  scale_color_manual(values=c("steelblue4","darkolivegreen4", "firebrick4", "darkorange3", "gray0")) +
+  labs(title = "Density of Toxicity for Candidate Tweets Mentioning Immigration",
+       x = "Toxicity Score \n (Probability That Tweet Will Be Perceived as Toxic)",
+       y = "Density (%)")
+
+ggplotly(imm_tox_gg)
+
+```
+
+```{r echo = FALSE, warning = FALSE}
+##THREAT IN IMM TWEETS
+threat_imm <- readRDS("/Volumes/LaCie Rugged/Tweets/threat_imm.rds")
+imm_final <- left_join(imm_final, threat_imm, by = c("status_id" = "text_id"))
+
+imm_threat_gg <- imm_final %>%
+  filter(party == "PPC" | party == "CPC" | party == "LPC" | party == "NDP" | party == "GPC") %>%
+  ggplot(aes(x = THREAT)) +
+  geom_density(aes(group = party, colour = party))+
+  scale_color_manual(values=c("steelblue4","darkolivegreen4", "firebrick4", "darkorange3", "gray0")) +
+  labs(title = "Density of Threat for Candidate Tweets Mentioning Immigration",
+       x = "Threat Score \n (Probability That Tweet Will Be Perceived as Threatening)",
+       y = "Density (%)")
+
+ggplotly(imm_threat_gg)
+```
+
+```{r echo = FALSE, warning = FALSE}
+##IDENTITY ATTACK IN IMM TWEETS
+id_imm <- readRDS("/Volumes/LaCie Rugged/Tweets/id_imm.rds")
+imm_final <- left_join(imm_final, id_imm, by = c("status_id" = "text_id"))
+
+imm_id_gg <- imm_final %>%
+  filter(party == "PPC" | party == "CPC" | party == "LPC" | party == "NDP" | party == "GPC") %>%
+  ggplot(aes(x = IDENTITY_ATTACK)) +
+  geom_density(aes(group = party, colour = party))+
+  scale_color_manual(values=c("steelblue4","darkolivegreen4", "firebrick4", "darkorange3", "gray0")) +
+  labs(title = "Density of Identity Attack Scores for Candidate Tweets Mentioning Immigration",
+       x = "Identity Attack Score \n (Probability That Tweet Will Be Perceived as Threatening)",
+       y = "Density (%)")
+
+ggplotly(imm_id_gg)
+```
+
+## Tweets on Indigenous Issues
+#### Measuring Toxicity, Threats, and Identity Attacks
+
+```{r echo = FALSE, warning = FALSE}
+##TOXICITY IN INDIG TWEETS
+tox_indig <- readRDS("/Volumes/LaCie Rugged/Tweets/tox_indig.rds")
+indig_final <- left_join(indig_final, tox_indig, by = c("status_id" = "text_id"))
+
+indig_tox_gg <- indig_final %>%
+  filter(party == "PPC" | party == "CPC" | party == "LPC" | party == "NDP" | party == "GPC") %>%
+  ggplot(aes(x = TOXICITY)) +
+  geom_density(aes(group = party, colour = party))+
+  scale_color_manual(values=c("steelblue4","darkolivegreen4", "firebrick4", "darkorange3", "gray0")) +
+  labs(title = "Density of Toxicity for Candidate Tweets Mentioning Indigenous Issues",
+       x = "Toxicity Score \n (Probability That Tweet Will Be Perceived as Toxic)",
+       y = "Density (%)")
+
+ggplotly(indig_tox_gg)
+
+```

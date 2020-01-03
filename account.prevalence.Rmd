@@ -1,0 +1,178 @@
+---
+title: "Account Prevalence"
+output:
+  html_document:
+    theme: journal
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(quanteda)
+library(tidytext)
+library(plotly)
+library(knitr)
+library(DT)
+```
+
+```{r global, include = FALSE}
+#load data
+final <- readRDS("/Volumes/LaCie Rugged/Tweets/final_master_tweets.rds")
+hashtag_dfm <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm.rds")
+handles <- read.csv("/Volumes/LaCie Rugged/Tweets/master_handles.csv")
+handles <- handles[,-1]
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000", "#006666", "#000066", "#330066", "#660066", "#660033", "#606060", "#003366", "#666600")
+```
+
+## Prevalence of Twitter Accounts by Party
+#### Overall
+```{r, echo = FALSE, warning = FALSE}
+##BAR CHART OF PROPORTION CANDIDATES RUNNING THAT HAVE TWITTER ACCT
+#whole country
+prop_cntry <- handles %>%
+  group_by(party) %>%
+  summarize(prop = sum(!is.na(screen_name)) / sum(!is.na(riding))) %>%
+  na.omit() %>%
+  ggplot(aes(x=party, y=prop, fill = party)) +
+    geom_bar(stat="identity", colour="black") +
+    scale_fill_manual(values= c("steelblue4", "darkolivegreen4", "firebrick4", "darkorange3", "gray0")) +
+  theme(legend.position = "none") +
+  labs(x = "Party",
+       y = "Proportion of Announced Candidates With Twitter Account",
+       title = 'Proportion of Candidate Twitter Accounts by Party')
+ggplotly(prop_cntry)
+```
+
+#### Prevalence by Party and Gender
+```{r, echo = FALSE, warning= FALSE}
+##BAR CHART OF RAW COUNT # TWITTER ACCOUNTS BY PARTY
+bar_prev <- handles %>%
+  group_by(party, gender) %>%
+  summarize(acct_prev = sum(!is.na(screen_name))) %>%
+  na.omit() %>%
+  ggplot(aes(x=party, y=acct_prev, fill=gender)) +
+    geom_bar(stat="identity", position=position_dodge(), colour="black") +
+    scale_fill_manual(values= c("gray70", "pink4")) +
+  labs(x = "Party",
+       y = "Raw Count of Accounts",
+       fill = "Gender",
+       title = 'Raw Count of Candidate Twitter Accounts by Party and Gender')
+ggplotly(bar_prev)
+```
+
+#### Gender Distribution of Accounts by Party
+```{r echo = FALSE, warning = FALSE}
+#Proportion of accounts by gender for each party
+
+
+```
+
+
+#### Prevalence by Province
+```{r, echo = FALSE, warning= FALSE}
+#Prevalence by province
+#by prov
+prop_prov <- handles %>%
+  group_by(province) %>%
+  summarize(prop = sum(!is.na(screen_name)) / sum(!is.na(riding))) %>%
+  na.omit() %>%
+  ggplot(aes(x=province, y=prop)) +
+    geom_bar(stat="identity", colour="black") +
+  theme(legend.position = "none") +
+  labs(x = "Party",
+       y = "Proportion of Announced Candidates With Twitter Account",
+       title = 'Proportion of Candidate Twitter Accounts by Province')
+ggplotly(prop_prov)
+```
+
+#### Account Information for Each Riding and Party Combination
+```{r, echo = FALSE, warning = FALSE}
+##INTERACTIVE TABLE TO INVESTIGATE ACCOUNT PREVALENCE
+datatable(handles[,-7], filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Riding', 'Province', 'Party', 'Name', 'Screen Name', 'Gender'))
+```
+
+## Prevalence of Accounts by Province for Each Party
+#### Conservative Party
+```{r, echo = FALSE, warning= FALSE}
+###CPC Acct Prevalence by Gender and Province
+cpc_prev <- handles %>%
+  filter(party == "CPC") %>%
+  na.omit() %>%
+  ggplot(aes(fill=gender, x=province)) + 
+  geom_bar(position="fill") +
+  scale_fill_manual(values = c("gray70", "pink4")) +
+  labs(x = "Party",
+       y = "Proportion of Announced Candidates With Twitter Account",
+       title = 'Proportion of CPC Twitter Accounts by Province and Gender',
+       fill = "Gender")
+ggplotly(cpc_prev)
+```
+
+#### Liberal Party
+```{r, echo = FALSE, warning= FALSE}
+###LPC Acct Prevalence by Gender and Province
+lpc_prev <- handles %>%
+  filter(party == "LPC") %>%
+  na.omit() %>%
+  ggplot(aes(fill=gender, x=province)) + 
+  geom_bar(position="fill") +
+  scale_fill_manual(values = c("gray70", "pink4")) +
+  labs(x = "Party",
+       y = "Proportion of Announced Candidates With Twitter Account",
+       title = 'Proportion of LPC Twitter Accounts by Province and Gender',
+       fill = "Gender")
+ggplotly(lpc_prev)
+```
+
+#### New Democratic Party
+```{r, echo = FALSE, warning= FALSE}
+###NDP Acct Prevalence by Gender and Province
+ndp_prev <- handles %>%
+  filter(party == "NDP") %>%
+  na.omit() %>%
+  ggplot(aes(fill=gender, x=province)) + 
+  geom_bar(position="fill") +
+  scale_fill_manual(values = c("gray70", "pink4")) +
+  labs(x = "Party",
+       y = "Proportion of Announced Candidates With Twitter Account",
+       title = 'Proportion of NDP Twitter Accounts by Province and Gender',
+       fill = "Gender")
+ggplotly(ndp_prev)
+```
+
+#### Green Party
+```{r, echo = FALSE, warning= FALSE}
+###GPC Acct Prevalence by Party and Province
+gpc_prev <- handles %>%
+  filter(party == "GPC") %>%
+  na.omit() %>%
+  ggplot(aes(fill=gender, x=province)) + 
+  geom_bar(position="fill") +
+  scale_fill_manual(values = c("gray70", "pink4")) +
+  labs(x = "Party",
+       y = "Proportion of Announced Candidates With Twitter Account",
+       title = 'Proportion of GPC Twitter Accounts by Province and Gender',
+       fill = "Gender")
+ggplotly(gpc_prev)
+```
+
+#### People's Party of Canada
+```{r, echo = FALSE, warning= FALSE}
+###PPC Acct Prevalence by Party and Province
+ppc_prev <- handles %>%
+  filter(party == "PPC") %>%
+  na.omit() %>%
+  ggplot(aes(fill=gender, x=province)) + 
+  geom_bar(position="fill") +
+  scale_fill_manual(values = c("gray70", "pink4")) +
+  labs(x = "Party",
+       y = "Proportion of Announced Candidates With Twitter Account",
+       title = 'Proportion of PPC Twitter Accounts by Province and Gender',
+       fill = "Gender")
+ggplotly(ppc_prev)
+```
+

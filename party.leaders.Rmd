@@ -1,0 +1,24 @@
+---
+title: "Zoom on Party Leaders"
+output:
+  html_document:
+    theme: journal
+---
+
+```{r global, include = FALSE}
+#load data
+final <- readRDS("/Volumes/LaCie Rugged/Tweets/final_master_tweets.rds")
+hashtag_dfm <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm.rds")
+handles <- read.csv("/Volumes/LaCie Rugged/Tweets/master_handles.csv")
+handles <- handles[,-1]
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000", "#006666", "#000066", "#330066", "#660066", "#660033", "#606060", "#003366", "#666600")
+```
+
+- wordcloud of each party leader's tweets overall
+- wordcloud of each party leader's tweets in last month? two weeks? week?
+- popularity ranking (followers, average likes per tweet, average RTs per tweet)
+- trending issues by party leader -- which issues do they tweet about the most?
+- proportion of self-authored tweets versus retweets
+- issue sentiment by party leader -- over time? n size will be low (cluster into months?)
+- toxicity of tweets (distribution? -- aka density histogram) overall and by topic?
+- i.e. average toxicity in tweets towards all key issues by party leader

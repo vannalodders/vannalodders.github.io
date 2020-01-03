@@ -1,0 +1,71 @@
+---
+title: "Trending Issues"
+output:
+  html_document:
+    theme: journal
+---
+```{r global, include = FALSE}
+#load data
+final <- readRDS("/Volumes/LaCie Rugged/Tweets/final_master_tweets.rds")
+hashtag_dfm <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm.rds")
+handles <- read.csv("/Volumes/LaCie Rugged/Tweets/master_handles.csv")
+handles <- handles[,-1]
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000", "#006666", "#000066", "#330066", "#660066", "#660033", "#606060", "#003366", "#666600")
+```
+
+## Overview of Popular Hashtags
+### Overall
+```{r, echo = FALSE, warning = FALSE, fig.align="center", fig.width=6, fig.height=6, fig.cap="Note: top two hashtags #cdnpoli and #elxn43 have been removed"}
+set.seed(132)
+textplot_wordcloud(hashtag_dfm, max_words = 100)
+```
+
+### By Party
+#### The Conservatives
+```{r, echo = FALSE, warning = FALSE, fig.align="center", fig.width=6, fig.height=6, fig.cap="Note: top two hashtags #cdnpoli and #elxn43 have been removed"}
+hash_dfm_cpc <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm_cpc.rds")
+textplot_wordcloud(hash_dfm_cpc, max_words = 100,
+                   color = "steelblue4")
+```
+
+#### The Liberals
+```{r, echo = FALSE, warning = FALSE, fig.align="center", fig.width=6, fig.height=6, fig.cap="Note: top two hashtags #cdnpoli and #elxn43 have been removed"}
+hash_dfm_lpc <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm_lpc.rds")
+textplot_wordcloud(hash_dfm_lpc, max_words = 100,
+                   color = "firebrick4")
+```
+
+#### The New Democrats
+```{r, echo = FALSE, warning = FALSE, fig.align="center", fig.width=6, fig.height=6, fig.cap="Note: top two hashtags #cdnpoli and #elxn43 have been removed"}
+hash_dfm_ndp <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm_ndp.rds")
+textplot_wordcloud(hash_dfm_ndp, max_words = 100,
+                   color = "darkorange3")
+```
+
+#### The Greens
+```{r, echo = FALSE, warning = FALSE, fig.align="center", fig.width=6, fig.height=6, fig.cap="Note: top two hashtags #cdnpoli and #elxn43 have been removed"}
+hash_dfm_gpc <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm_gpc.rds")
+textplot_wordcloud(hash_dfm_gpc, max_words = 100,
+                   color = "darkolivegreen4")
+```
+
+#### The People's Party
+```{r, echo = FALSE, warning = FALSE, fig.align="center", fig.width=6, fig.height=6, fig.cap="Note: top two hashtags #cdnpoli and #elxn43 have been removed"}
+hash_dfm_ppc <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm_ppc.rds")
+textplot_wordcloud(hash_dfm_ppc, max_words = 100,
+                   color = "gray0")
+```
+
+## Top Words Used by Each Party
+#### Keywords, not hashtags
+```{r, echo = FALSE, warning = FALSE}
+#textstat_frequency(dfm_en, n = 10, groups = "party")
+#need to do this through the cleaning and preprocessing script
+```
+
+
+
+- then broken down by gender
+- top hashtags by party
+- prevalence of talking about key issues by party and gender (tweets on each key topic)
+- keyness analysis -- unique words used within each issue type by party

@@ -1,0 +1,331 @@
+---
+title: "Tweet Volume & Activity"
+output:
+  html_document:
+    theme: journal
+---
+```{r global, include = FALSE}
+#load data
+final <- readRDS("/Volumes/LaCie Rugged/Tweets/final_master_tweets.rds")
+hashtag_dfm <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm.rds")
+handles <- read.csv("/Volumes/LaCie Rugged/Tweets/master_handles.csv")
+handles <- handles[,-1]
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000", "#006666", "#000066", "#330066", "#660066", "#660033", "#606060", "#003366", "#666600")
+```
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(tidytext)
+library(plotly)
+library(knitr)
+library(textstem)
+library(quanteda)
+library(DT)
+```
+
+## Total Volume of Candidate Tweets By Party and Week
+#### Since March 2019
+```{r, echo = FALSE, warning = FALSE}
+###STILL NEED TO ADD KEY EVENTS!! FROM MAX LIST##
+##OVERALL VOLUME OF CANDIDATE TWEETS BY PARTY
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000")
+
+Volume <- final %>%
+  group_by(party, week_range) %>%
+  summarise(volume = length(text)) %>%
+  na.omit(cols = c("party", "week_range")) %>%
+  ungroup()
+
+Volume %>%
+  mutate(text_label = str_c("Volume:", volume, '\nWeek: ', week_range)) %>% 
+  plot_ly(x = ~week_range, y = ~volume, type = "scatter", mode = "lines",
+          alpha = 0.5,
+          text = ~text_label,
+          color = ~party,
+          colors = palette)%>%
+  layout(title = "Volume of Tweets Per Week by Party: March 4th to Present",
+         xaxis = list(title = "Week"),
+         yaxis = list(title = "Total Number Tweets"))
+```
+
+
+## Total Volume of Candidate **Retweets** by Party and Week
+```{r, echo = FALSE, warning = FALSE}
+##RETWEETS OVER TIME BY PARTY
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000")
+
+vol_rts <- final %>%
+  group_by(party, week_range) %>%
+  filter(is_retweet == TRUE) %>%
+  summarise(volume_rts = length(text)) %>%
+  na.omit(cols = c("party", "week_range")) %>%
+  ungroup()
+
+vol_rts %>%
+  mutate(text_label = str_c("Volume:", volume_rts, '\nWeek: ', week_range)) %>% 
+  plot_ly(x = ~week_range, y = ~volume_rts, type = "scatter", mode = "lines",
+          alpha = 0.5,
+          text = ~text_label,
+          color = ~party,
+          colors = palette)%>%
+  layout(title = "Volume of Retweets Per Week by Party: March 4th to Present",
+         xaxis = list(title = "Week"),
+         yaxis = list(title = "Total Number of Retweets"))
+
+```
+
+
+## Total Volume of Candidate **Self-Authored Tweets** by Party and Week
+```{r, echo = FALSE, warning = FALSE}
+##SELF-AUTHORED OVER TIME BY PARTY
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000")
+
+vol_sa <- final %>%
+  group_by(party, week_range) %>%
+  filter(is_retweet == FALSE) %>%
+  summarise(volume_sa = length(text)) %>%
+  na.omit(cols = c("party", "week_range")) %>%
+  ungroup()
+
+vol_sa %>%
+  mutate(text_label = str_c("Volume:", volume_sa, '\nWeek: ', week_range)) %>% 
+  plot_ly(x = ~week_range, y = ~volume_sa, type = "scatter", mode = "lines",
+          alpha = 0.5,
+          text = ~text_label,
+          color = ~party,
+          colors = palette)%>%
+  layout(title = "Volume of Self-Authored Per Week by Party: March 4th to Present",
+         xaxis = list(title = "Week"),
+         yaxis = list(title = "Total Number of Self-Authored Tweets"))
+
+```
+
+## Investigating Gender Differences in Tweet Type
+#### Across all parties
+```{r, echo = FALSE, warning = FALSE}
+##WHO WRITES MORE SELF-AUTHORED TWEETS -- MEN OR WOMEN?
+vol_gender <- final %>%
+  group_by(gender, week_range, is_retweet) %>%
+  summarise(volume_gndr = length(text)) %>%
+  na.omit(cols = c("gender", "week_range")) %>%
+  ungroup()
+
+vol_gender %>%
+  mutate(text_label = str_c("Volume:", volume_gndr, '\nWeek: ', week_range)) %>% 
+  plot_ly(x = ~week_range, y = ~volume_gndr, type = "scatter", mode = "lines",
+          alpha = 0.5,
+          text = ~text_label,
+          color = ~gender,
+          symbol = ~is_retweet,
+          colors = palette)%>%
+  layout(title = "Volume of Tweets Per Week by Gender and RT Status: March 4th to Present",
+         xaxis = list(title = "Week"),
+         yaxis = list(title = "Total Number of Tweets"))
+```
+
+```{r, echo = FALSE, warning = FALSE, include = FALSE}
+glm(data = final, is_retweet ~ gender + party, family = binomial)
+summary(glm(data = final, is_retweet ~ gender + party, family = binomial))
+```
+
+## Party-Level Differences Between Men's and Women's Tweet Types
+#### Conservative Party 
+```{r, echo = FALSE, warnings = FALSE}
+##AND ARE THERE ANY PARTY-LEVEL GENDER DISCREPENCIES THAT STAND OUT?
+#CPC
+type_cpc <- final %>%
+  filter(party == "CPC", !is.na(gender)) %>%
+  mutate(rt_status = ifelse(is_retweet == "TRUE", "Retweet", "Self-Authored")) %>%
+  filter(!is.na(rt_status)) %>%
+  ggplot(aes(x=gender, fill=rt_status)) +
+    geom_bar(position="fill", colour="black") +
+    scale_fill_manual(values= c("gray70", "pink4")) +
+  labs(x = "Gender",
+       y = "Proportion of Tweets Under each Type",
+       fill = "Tweet Type",
+       title = 'Prevalence of CPC Candidate Tweet Type by Gender')
+ggplotly(type_cpc)
+```
+
+#### Liberal Party 
+```{r, echo = FALSE, warnings = FALSE}
+#LPC
+type_lpc <- final %>%
+  filter(party == "LPC", !is.na(gender)) %>%
+  mutate(rt_status = ifelse(is_retweet == "TRUE", "Retweet", "Self-Authored")) %>%
+  filter(!is.na(rt_status)) %>%
+  ggplot(aes(x=gender, fill=rt_status)) +
+    geom_bar(position="fill", colour="black") +
+    scale_fill_manual(values= c("gray70", "pink4")) +
+  labs(x = "Gender",
+       y = "Proportion of Tweets Under each Type",
+       fill = "Tweet Type",
+       title = 'Prevalence of LPC Candidate Tweet Type by Gender')
+ggplotly(type_lpc)
+```
+
+#### New Democratic Party
+```{r, echo = FALSE, warnings = FALSE}
+#NDP
+type_ndp <- final %>%
+  filter(party == "NDP", !is.na(gender)) %>%
+  mutate(rt_status = ifelse(is_retweet == "TRUE", "Retweet", "Self-Authored")) %>%
+  filter(!is.na(rt_status)) %>%
+  ggplot(aes(x=gender, fill=rt_status)) +
+    geom_bar(position="fill", colour="black") +
+    scale_fill_manual(values= c("gray70", "pink4")) +
+  labs(x = "Gender",
+       y = "Proportion of Tweets Under each Type",
+       fill = "Tweet Type",
+       title = 'Prevalence of NDP Candidate Tweet Type by Gender')
+ggplotly(type_ndp)
+```
+
+#### Green Party
+```{r, echo = FALSE, warnings = FALSE}
+#GPC
+type_gpc <- final %>%
+  filter(party == "GPC", !is.na(gender)) %>%
+  mutate(rt_status = ifelse(is_retweet == "TRUE", "Retweet", "Self-Authored")) %>%
+  filter(!is.na(rt_status)) %>%
+  ggplot(aes(x=gender, fill=rt_status)) +
+    geom_bar(position="fill", colour="black") +
+    scale_fill_manual(values= c("gray70", "pink4")) +
+  labs(x = "Gender",
+       y = "Proportion of Tweets Under each Type",
+       fill = "Tweet Type",
+       title = 'Prevalence of GPC Candidate Tweet Type by Gender')
+ggplotly(type_gpc)
+```
+
+#### People's Party of Canada
+```{r, echo = FALSE, warnings = FALSE}
+#PPC
+type_ppc <- final %>%
+  filter(party == "PPC", !is.na(gender)) %>%
+  mutate(rt_status = ifelse(is_retweet == "TRUE", "Retweet", "Self-Authored")) %>%
+  filter(!is.na(rt_status)) %>%
+  ggplot(aes(x=gender, fill=rt_status)) +
+    geom_bar(position="fill", colour="black") +
+    scale_fill_manual(values= c("gray70", "pink4")) +
+  labs(x = "Gender",
+       y = "Proportion of Tweets Under each Type",
+       fill = "Tweet Type",
+       title = 'Prevalence of PPC Candidate Tweet Type by Gender')
+ggplotly(type_ppc)
+```
+
+## Overall Tweet-Volume (self-authored and retweets) by Candidate Gender and Party
+```{r, echo = FALSE, warning = FALSE}
+###TWEET VOLUME BY GENDER AND PARTY
+vol <- final %>%
+  filter(!is.na(gender)) %>%
+  group_by(party, gender) %>%
+  summarize(n = n_distinct(screen_name),
+            Volume = length(!is.na(text)),
+            Avg_Per_User = round(Volume/n))
+
+datatable(vol, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Gender', '# of Candidates', 'Overall Volume', 'Average Tweets per User'))
+```
+
+## The Eager-Beavers: Overall Highest-Volume Tweeters
+```{r, echo = FALSE, warning = FALSE}
+###OVERALL HIGHEST VOLUME TWEETERS
+highest.vol <- final %>%
+  group_by(screen_name, name, party, gender, riding, province) %>%
+  summarize(count = length(text)) %>%
+  arrange(desc(count))
+
+datatable(highest.vol, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Handle','Name','Party','Gender', 'Riding', 'Province', 'Total Tweets'))
+```
+
+## Highest-Volume Tweeters by Party
+#### Conservative Party
+```{r, echo = FALSE, warning = FALSE}
+###HIGHEST VOLUME TWEETERS BY PARTY
+#CPC
+cpc_highvol <- final %>%
+  filter(party == "CPC") %>%
+  group_by(screen_name, name, gender, riding, province) %>%
+  summarize(count = length(text)) %>%
+  arrange(desc(count))
+
+datatable(cpc_highvol, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Handle','Name', 'Gender', 'Riding', 'Province', 'Total Tweets'))
+```
+
+#### The Liberals
+```{r, echo = FALSE, warning = FALSE}
+#LPC
+lpc_highvol <- final %>%
+  filter(party == "LPC") %>%
+  group_by(screen_name, name, gender, riding, province) %>%
+  summarize(count = length(text)) %>%
+  arrange(desc(count))
+
+datatable(lpc_highvol, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Handle','Name', 'Gender', 'Riding', 'Province', 'Total Tweets'))
+```
+
+#### The New Democratic Party
+```{r, echo = FALSE, warning = FALSE}
+#NDP
+ndp_highvol <- final %>%
+  filter(party == "NDP") %>%
+  group_by(screen_name, name, gender, riding, province) %>%
+  summarize(count = length(text)) %>%
+  arrange(desc(count))
+
+datatable(ndp_highvol, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Handle','Name', 'Gender', 'Riding', 'Province', 'Total Tweets'))
+```
+
+#### The Green Party
+```{r, echo = FALSE, warning = FALSE}
+#GPC
+gpc_highvol <- final %>%
+  filter(party == "GPC") %>%
+  group_by(screen_name, name, gender, riding, province) %>%
+  summarize(count = length(text)) %>%
+  arrange(desc(count))
+
+datatable(gpc_highvol, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Handle','Name', 'Gender', 'Riding', 'Province', 'Total Tweets'))
+```
+
+#### The People's Party of Canada
+```{r, echo = FALSE, warning = FALSE}
+#PPC
+ppc_highvol <- final %>%
+  filter(party == "PPC") %>%
+  group_by(screen_name, name, gender, riding, province) %>%
+  summarize(count = length(text)) %>%
+  arrange(desc(count))
+
+datatable(ppc_highvol, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Handle','Name', 'Gender', 'Riding', 'Province', 'Total Tweets'))
+```
+

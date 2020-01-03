@@ -1,0 +1,374 @@
+---
+title: "Key Issue Sentiment"
+output:
+  html_document:
+    theme: journal
+---
+```{r setup, include=FALSE}
+library(tidyverse)
+library(tidytext)
+library(plotly)
+library(knitr)
+library(textstem)
+library(quanteda)
+library(DT)
+```
+
+```{r global, include = FALSE}
+#load data
+final <- readRDS("/Volumes/LaCie Rugged/Tweets/final_master_tweets.rds")
+hashtag_dfm <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm.rds")
+handles <- read.csv("/Volumes/LaCie Rugged/Tweets/master_handles.csv")
+handles <- handles[,-1]
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000", "#006666", "#000066", "#330066", "#660066", "#660033", "#606060", "#003366", "#666600")
+```
+
+## Scoring Sentiment: Dictionary-Based Methods to Calculate Sentiment on Issue-Specific Tweets
+Over the course of federal elections, several key issues can come to the forefront of national attention, providing parties with an opportunitiy to differentiate themselves ideologically from others. One way to communicate a candidate's stance on key electoral issues is through tweeting about the topic. Over the 2019 federal election, it became clear that the economy, environment, immigration, indigenous rights, and gender/feminism were salient topics. Below, I categorize tweets into these topic categories and score each individual tweet on a scale from 0 (completely negative) to 1 (completely positive). Since it is not possible to show the scores of all 600,000+ tweets, I have aggregated these scores by week and party to produce a net sentiment score of each party's tweets on a certain topic over the course of a week. Since data collection for this project began in March, tweets have been scored across 34 weeks in the year, each by party. 
+
+Scoring of the tweets is done as follows (see appendix for more detailed information): stopwords are removed from each tweet, each tweet is lemmatized (each word converted to its' lemma using Lexicon's hash_lemmas dictionary), all english negators are converted to "not" to be picked up by the sentiment dictionary, tweets are tokenized, a custom topic dictionary is applied, and each tweet is scored individually based on the number of positive and negative words (with negated words accounted for using the Lexicoder sentiment dictionary). Bear in mind that french language tweets while also using a Lexicoder sentiment dictionary can not account for negated terms at this point in time.
+
+The custom topic dictionaries (one english and one french) are as follows. Each tweet mentioning at least one keyword from a topic will be flagged as an issue-specific tweet corresponding to the topic that the keyword is located. Note that each topic dictionary has been designed specifically to pick up lemmatized tokens rather than tokens that have simply been stemmed.
+
+### Custom English Topic Dictionary
+* Immigration
+  + immigrant(s), immigrate, immigration, immigrations
+  + migrant, migrate, migration
+  + refuge, refugee, refugees, border
+* Economy
+  + economic(s), economically, economy
+  + job(s), employ, employee, employer, employment
+  + gdp, worker(s), workforce, workplace
+  + tax, taxation, taxable, taxes
+  + budget, budget2019, business, businesses
+* Environment
+  + environment(al), environmentalist, environmentally
+  + climate, global warming, pipeline(s), sustainability, sustainable
+  + carbon, kinder morgan, transmountain, trans mountain
+* Indigenous Issues
+  + indigenous, native, metis, inuit, first nation(s), firstnation(s), aboriginal
+  + treaty, chief, white paper, self government, reconciliation
+* Gender/Feminism
+  + gender, feminism, feminist, women(s), girl, woman
+
+### Custom French Topic Dictionary
+* Immigration
+  + immigrant(s), immigrate, immigration, immigrations, l'immigration
+  + migration, migrant, migrateur, migratoire
+  + refuge, refugee, refugees, border
+* Economy
+  + economic(s), economically, economy, economie
+  + job, emploi, emplois, employer(s), employeur, pib
+  + ouvrir, ouvrier, workforce, workplace
+  + tax, taxation, taxable, taxes, taxer
+  + budget, budget2019, business, businesses, impôt, impôts
+* Environment
+  + environment(al), environmentalist, environnement, environnemental
+  + environnementaliste, environnementalistes, climat, climate, climatechange, climate change
+  + global warming, pipeline, sustainable, sustainability, durabilité
+  + carbon, carbone, carbone taxe, kinder morgan, transmountain, trans mountain
+* Indigenous Issues
+  + indigène, indigenous, metis, inuit, inuites, inuits, first nation(s), firstnation(s), aboriginal
+  + traité, treaty, chief, white paper, self government, reconciliation, réconciliation
+* Gender/Feminism
+  + gender, sexes, féminisme, féministe, femme, women, girl, fille, woman
+
+## Immigration
+
+Scoring shown only for tweets that mention at least one immigration keyword (including both french and english language tweets, retweets, and self-authored tweets)
+
+* English
+  + immigrant(s), immigrate, immigration, immigrations, migrant, migrate, migration, refuge, refugee, refugees, border
+* French
+  + immigrant(s), immigrate, immigration, immigrations, l'immigration, migration, migrant, migrateur, migratoire, refuge, refugee, refugees, border
+  
+```{r eval= TRUE, echo = FALSE, warning = FALSE}
+imm.line <- final %>%
+  filter(immigration > 0) %>%
+  group_by(week_range, party) %>%
+  summarise(net_sentiment = mean(net_sentiment, na.rm = T)) %>%
+  na.omit(cols = c("party", "week")) %>%
+  ungroup()
+
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000")
+
+imm.line %>%
+  mutate(text_label = str_c("Net Sentiment:", net_sentiment, '\nWeek: ', week_range)) %>% 
+  plot_ly(x = ~week_range, y = ~net_sentiment, type = "scatter", mode = "lines",
+          alpha = 0.5,
+          text = ~text_label,
+          color = ~party,
+          colors = palette)%>%
+  layout(title = "Average Net Sentiment of Immigration Tweets by Party and Week",
+         xaxis = list(title = "Week"),
+         yaxis = list(title = "Net Sentiment \n(1 = Positive, 0 = Negative)", range = c(0,1)))
+
+```
+
+#### Volume of Immigration Tweets by Party Overall
+```{r, echo = FALSE, warning = FALSE}
+imm.tbl <- final %>%
+  filter(immigration > 0, party == "CPC" | party == "GPC" | party == "LPC" | party == "NDP" | party == "PPC") %>%
+  count(party)
+
+datatable(imm.tbl, options = list(
+  pageLength = 5, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Total # of Tweets on Immigration Since March'))
+```
+
+#### Weekly Volume of Immigration Tweets by Party
+```{r, echo = FALSE, warning = FALSE}
+imm.wk.tbl <- final %>%
+  filter(immigration > 0, 
+         party == "CPC" | party == "GPC" | party == "LPC" | party == "NDP" | party == "PPC") %>%
+  group_by(party, week_range) %>%
+  count(party)
+
+datatable(imm.wk.tbl, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Week','Total # of Tweets on Immigration'))
+```
+
+## The Economy
+
+Scoring shown only for tweets that mention at least one economy keyword (including both french and english language tweets, retweets, and self-authored tweets)
+
+* English
+  + economic(s), economically, economy, job(s), employ, employee, employer, employment, gdp, worker(s), workforce, workplace, tax, taxation, taxable, taxes, budget, budget2019, business, businesses
+* French
+  + economic(s), economically, economy, economie, job, emploi, emplois, employer(s), employeur, pib, ouvrir, ouvrier, workforce, workplace, tax, taxation, taxable, taxes, taxer, budget, budget2019, business, businesses impôt, impôts
+  
+```{r eval= TRUE, echo = FALSE, warning = FALSE}
+econ.line <- final %>%
+  filter(economy > 0) %>%
+  group_by(week_range, party) %>%
+  summarise(net_sentiment = mean(net_sentiment, na.rm = T)) %>%
+  na.omit(cols = c("party", "week")) %>%
+  ungroup()
+
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000")
+
+econ.line %>%
+  mutate(text_label = str_c("Net Sentiment:", net_sentiment, '\nWeek: ', week_range)) %>% 
+  plot_ly(x = ~week_range, y = ~net_sentiment, type = "scatter", mode = "lines",
+          alpha = 0.5,
+          text = ~text_label,
+          color = ~party,
+          colors = palette)%>%
+  layout(title = "Average Net Sentiment of Economy Tweets by Party and Week",
+         xaxis = list(title = "Week"),
+         yaxis = list(title = "Net Sentiment \n(1 = Positive, 0 = Negative)", range = c(0,1)))
+
+```
+
+#### Volume of Economy Tweets by Party Overall
+```{r, echo = FALSE, warning = FALSE}
+econ.tbl <- final %>%
+  filter(economy > 0, party == "CPC" | party == "GPC" | party == "LPC" | party == "NDP" | party == "PPC") %>%
+  count(party)
+
+datatable(econ.tbl, options = list(
+  pageLength = 5, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Total # of Tweets on the Economy Since March'))
+```
+
+#### Weekly Volume of Economy Tweets by Party
+```{r, echo = FALSE, warning = FALSE}
+econ.wk.tbl <- final %>%
+  filter(economy > 0, 
+         party == "CPC" | party == "GPC" | party == "LPC" | party == "NDP" | party == "PPC") %>%
+  group_by(party, week_range) %>%
+  count(party)
+
+datatable(econ.wk.tbl, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Week','Total # of Tweets on the Economy'))
+```
+
+## The Environment
+
+Scoring shown only for tweets that mention at least one environment keyword (including both french and english language tweets, retweets, and self-authored tweets)
+
+* English
+  + environment(al), environmentalist, environmentally, climate, global warming, pipeline(s), sustainability, sustainable, carbon, kinder morgan, transmountain, trans mountain
+* French
+  + environment(al), environmentalist, environnement, environnemental, environnementaliste, environnementalistes, climat, climate, climatechange, climate change, global warming, pipeline, sustainable, sustainability, durabilité, carbon, carbone, carbone taxe, kinder morgan, transmountain, trans mountain
+  
+```{r eval= TRUE, echo = FALSE, warning = FALSE}
+enviro.line <- final %>%
+  filter(environment > 0) %>%
+  group_by(week_range, party) %>%
+  summarise(net_sentiment = mean(net_sentiment, na.rm = T)) %>%
+  na.omit(cols = c("party", "week")) %>%
+  ungroup()
+
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000")
+
+enviro.line %>%
+  mutate(text_label = str_c("Net Sentiment:", net_sentiment, '\nWeek: ', week_range)) %>% 
+  plot_ly(x = ~week_range, y = ~net_sentiment, type = "scatter", mode = "lines",
+          alpha = 0.5,
+          text = ~text_label,
+          color = ~party,
+          colors = palette)%>%
+  layout(title = "Average Net Sentiment of Environment Tweets by Party and Week",
+         xaxis = list(title = "Week"),
+         yaxis = list(title = "Net Sentiment \n(1 = Positive, 0 = Negative)", range = c(0,1)))
+
+```
+
+#### Volume of Environment Tweets by Party Overall
+```{r, echo = FALSE, warning = FALSE}
+enviro.tbl <- final %>%
+  filter(environment > 0, party == "CPC" | party == "GPC" | party == "LPC" | party == "NDP" | party == "PPC") %>%
+  count(party)
+
+datatable(enviro.tbl, options = list(
+  pageLength = 5, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Total # of Tweets on the Environment Since March'))
+```
+
+#### Weekly Volume of Environment Tweets by Party
+```{r, echo = FALSE, warning = FALSE}
+enviro.wk.tbl <- final %>%
+  filter(environment > 0, 
+         party == "CPC" | party == "GPC" | party == "LPC" | party == "NDP" | party == "PPC") %>%
+  group_by(party, week_range) %>%
+  count(party)
+
+datatable(enviro.wk.tbl, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Week','Total # of Tweets on the Environment'))
+```
+
+## Indigenous Issues
+
+Scoring shown only for tweets that mention at least one indigenous keyword (including both french and english language tweets, retweets, and self-authored tweets)
+
+* English
+  + indigenous, native, metis, inuit, first nation(s), firstnation(s), aboriginal, treaty, chief, white paper, self government, reconciliation
+* French
+  + indigène, indigenous, metis, inuit, inuites, inuits, first nation(s), firstnation(s), aboriginal, traité, treaty, chief, white paper, self government, reconciliation, réconciliation
+
+```{r eval= TRUE, echo = FALSE, warning = FALSE}
+indig.line <- final %>%
+  filter(indigenous > 0) %>%
+  group_by(week_range, party) %>%
+  summarise(net_sentiment = mean(net_sentiment, na.rm = T)) %>%
+  na.omit(cols = c("party", "week")) %>%
+  ungroup()
+
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000")
+
+indig.line %>%
+  mutate(text_label = str_c("Net Sentiment:", net_sentiment, '\nWeek: ', week_range)) %>% 
+  plot_ly(x = ~week_range, y = ~net_sentiment, type = "scatter", mode = "lines",
+          alpha = 0.5,
+          text = ~text_label,
+          color = ~party,
+          colors = palette)%>%
+  layout(title = "Average Net Sentiment of Tweets Mentioning \nIndigenous Issues by Party and Week",
+         xaxis = list(title = "Week"),
+         yaxis = list(title = "Net Sentiment \n(1 = Positive, 0 = Negative)", range = c(0,1)))
+
+```
+
+#### Volume of Indigenous Tweets by Party Overall
+```{r, echo = FALSE, warning = FALSE}
+indig.tbl <- final %>%
+  filter(indigenous > 0, party == "CPC" | party == "GPC" | party == "LPC" | party == "NDP" | party == "PPC") %>%
+  count(party)
+
+datatable(indig.tbl, options = list(
+  pageLength = 5, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Total # of Tweets on Mentioning Indigenous Issues Since March'))
+```
+
+#### Weekly Volume of Indigenous Tweets by Party
+```{r, echo = FALSE, warning = FALSE}
+indig.wk.tbl <- final %>%
+  filter(indigenous > 0, 
+         party == "CPC" | party == "GPC" | party == "LPC" | party == "NDP" | party == "PPC") %>%
+  group_by(party, week_range) %>%
+  count(party)
+
+datatable(indig.wk.tbl, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Week','Total # of Tweets Mentioning Indigenous Issues'))
+```
+
+## Gender and Feminism
+
+Scoring shown only for tweets that mention at least one gender or feminism keyword (including both french and english language tweets, retweets, and self-authored tweets)
+
+* English
+  + gender, feminism, feminist, women(s), girl, woman
+* French
+  + gender, sexes, féminisme, féministe, femme, women, girl, fille, woman
+
+```{r eval= TRUE, echo = FALSE, warning = FALSE}
+gndr.line <- final %>%
+  filter(gender > 0) %>%
+  group_by(week_range, party) %>%
+  summarise(net_sentiment = mean(net_sentiment, na.rm = T)) %>%
+  na.omit(cols = c("party", "week")) %>%
+  ungroup()
+
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000")
+
+gndr.line %>%
+  mutate(text_label = str_c("Net Sentiment:", net_sentiment, '\nWeek: ', week_range)) %>% 
+  plot_ly(x = ~week_range, y = ~net_sentiment, type = "scatter", mode = "lines",
+          alpha = 0.5,
+          text = ~text_label,
+          color = ~party,
+          colors = palette)%>%
+  layout(title = "Average Net Sentiment of Gender or Feminism Tweets by Party and Week",
+         xaxis = list(title = "Week"),
+         yaxis = list(title = "Net Sentiment \n(1 = Positive, 0 = Negative)", range = c(0,1)))
+
+```
+
+#### Volume of Gender & Feminism Tweets by Party Overall
+```{r, echo = FALSE, warning = FALSE}
+gndr.tbl <- final %>%
+  filter(gender > 0, party == "CPC" | party == "GPC" | party == "LPC" | party == "NDP" | party == "PPC") %>%
+  count(party)
+
+datatable(gndr.tbl, options = list(
+  pageLength = 5, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Total # of Tweets on Gender or Feminism Since March'))
+```
+
+#### Weekly Volume of Gender & Feminism Tweets by Party
+```{r, echo = FALSE, warning = FALSE}
+gndr.wk.tbl <- final %>%
+  filter(gender > 0, 
+         party == "CPC" | party == "GPC" | party == "LPC" | party == "NDP" | party == "PPC") %>%
+  group_by(party, week_range) %>%
+  count(party)
+
+datatable(gndr.wk.tbl, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Week','Total # of Tweets Mentioning Gender or Feminism'))
+```

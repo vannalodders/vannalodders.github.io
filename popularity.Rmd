@@ -1,0 +1,136 @@
+---
+title: "Popularity"
+output:
+  html_document:
+    theme: journal
+---
+```{r global, include = FALSE}
+#load data
+final <- readRDS("/Volumes/LaCie Rugged/Tweets/final_master_tweets.rds")
+hashtag_dfm <- readRDS("/Volumes/LaCie Rugged/Tweets/hash_dfm.rds")
+handles <- read.csv("/Volumes/LaCie Rugged/Tweets/master_handles.csv")
+handles <- handles[,-1]
+palette <- c("#004C99", "#336600", "#990000", "#CC6600", "#000000", "#006666", "#000066", "#330066", "#660066", "#660033", "#606060", "#003366", "#666600")
+```
+
+## Average Number of Followers by Party
+```{r, echo = FALSE, warning = FALSE}
+##TABLE OF AVERAGE # OF FOLLOWERS WITHIN EACH PARTY
+followers <- final %>%
+  filter(!screen_name %in% c("JustinTrudeau", "AndrewScheer", "ElizabethMay", "theJagmeetSingh", "MaximeBernier")) %>%
+  group_by(screen_name, party, riding, province) %>%
+  summarize(followers = max(followers_count, na.rm = T))
+
+party_followers<- followers %>%
+  filter(!is.na(party)) %>%
+  group_by(party) %>%
+  summarize(mean_followers = round(mean(followers, na.rm = T))) %>%
+  arrange(desc(mean_followers))
+
+datatable(party_followers, options = list(
+  pageLength = 5, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Average # of Followers'))
+```
+
+## Average Number of Followers by Party and Gender
+```{r, echo = FALSE, warning = FALSE}
+##AVG # OF FOLLOWERS BY PARTY AND GENDER
+followers_gndr <- final %>%
+  group_by(screen_name, gender, party, riding, province) %>%
+  filter(!screen_name %in% c("JustinTrudeau", "AndrewScheer", "ElizabethMay", "theJagmeetSingh", "MaximeBernier")) %>%
+  summarize(followers = max(followers_count, na.rm = T))
+
+party_followers_gndr <- followers_gndr %>%
+  filter(!is.na(party), !is.na(gender)) %>%
+  group_by(party, gender) %>%
+  summarize(mean_followers = round(mean(followers, na.rm = T))) %>%
+  arrange(desc(mean_followers))
+
+datatable(party_followers_gndr, options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Party', 'Gender','Average # of Followers'))
+```
+
+## Influencers: Top Users With the Most Followers
+```{r, echo = FALSE, warning = FALSE}
+followers_user <- final %>%
+  group_by(screen_name, gender, party, riding, province) %>%
+  summarize(followers = max(followers_count, na.rm = T)) %>%
+  arrange(desc(followers))
+
+datatable(followers_user, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Screen Name', 'Gender', 'Party','Riding','Province', '# of Followers'))
+```
+
+## Tweet Appeal: Who Gets the Most 'Favourites'?
+#### Among All Candidates
+```{r, echo = FALSE, warning = FALSE}
+favs_user <- final %>%
+  group_by(screen_name, gender, party, riding, province) %>%
+  summarize(favourites = round(mean(favorite_count, na.rm = T))) %>%
+  arrange(desc(favourites))
+
+datatable(favs_user, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Screen Name', 'Gender', 'Party','Riding','Province', 'Average # of Favourites'))
+```
+
+#### By Party and Gender
+```{r, echo = FALSE, warning = FALSE}
+favs_party_gndr <- favs_user %>%
+  filter(!is.na(party), !is.na(gender)) %>%
+  group_by(party, gender) %>%
+  summarize(favourites = round(mean(favourites, na.rm = T))) %>%
+  arrange(desc(favourites))
+
+datatable(favs_party_gndr, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c("Party", "Gender", "Average # of Favourites"))
+```
+
+## Tweet Appeal: What about Retweets?
+#### Among All Candidates
+```{r, echo = FALSE, warning = FALSE}
+rts_user <- final %>%
+  group_by(screen_name, gender, party, riding, province) %>%
+  summarize(rts = round(mean(retweet_count, na.rm = T))) %>%
+  arrange(desc(rts))
+
+datatable(rts_user, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c('Screen Name', 'Gender', 'Party','Riding','Province', 'Average Number of Retweets per Tweet'))
+```
+
+#### By Party and Gender
+```{r, echo = FALSE, warning = FALSE}
+rts_party_gndr <- rts_user %>%
+  filter(!is.na(party), !is.na(gender)) %>%
+  group_by(party, gender) %>%
+  summarize(rts = round(mean(rts, na.rm = T))) %>%
+  arrange(desc(rts))
+
+datatable(rts_party_gndr, filter = 'top', options = list(
+  pageLength = 10, autoWidth = TRUE
+),
+class = 'cell-border stripe',
+colnames = c("Party", "Gender", "Average # of Retweets per Tweet"))
+```
+
+
+- table: top 10 users with highest average likes in each party
+- table: top 10 users with highest average retweets in each party
+
+

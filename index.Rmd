@@ -1,0 +1,68 @@
+---
+title: "Project Overview"
+output:
+  html_document:
+    theme: journal
+    
+---
+```{r setup, include=FALSE}
+library(tidyverse)
+library(tidytext)
+library(plotly)
+library(knitr)
+library(textstem)
+library(quanteda)
+library(DT)
+library(kableExtra)
+library(readxl)
+```
+
+## Twitter Campaigns of the 2019 Canadian Federal Election
+
+<br>
+
+#### The Projects
+
+This website serves two primary purposes. First, I seek to provide an easily accessible and in-depth look at the twitter campaigns of candidates for Members of Parliament over the course of the 2019 Canadian Federal Election. By navigating through the above tabs, you can access basic descriptive statistics on each of the key political party's twitter activity (*Key Party Summary*) including account prevalence, volume and activity level, and popularity, the top trending hashtags and political issues related to the election (*Trending Issues*), and the sentiment of each party's tweets towards key issues (*Key Issue Sentiment*) including issue-specific sentiment of tweets (*Issue Specific Positivity*) and the degree to which toxic language is employed in each party's tweets towards select issues using the PeRspective package (*Toxicity in Tweets*).
+<br>
+<br>
+The second core function of this website is to present the final project for my Master's degree in Political Science from Simon Fraser University. The project investigates how gender and visible ethnic minority status influence utilization of Twitter as a self-promoting platform upon which to campaign. Additionally, it examines the heterogenous effects of gender and ethnic minority status on the relationship between engagement and electoral sucess. It focuses on the 1,663 candidates running across 5 major political parties (the LPC, CPC, NDP, GPC, and PPC) in the 2019 Canadian federal election. All-in-all, 1,254 out of 1,663 (75.41%) of these candidates have an active Twitter account not including generic riding association accounts. See the (*Final Project*) for the complete project.
+<br>
+<br>
+
+#### Interacting with Visualizations
+
+Many of the visualizations provided are interactive. To utilize interactive functionalities, simply hover over the plots. In doing so, you will find that the top right corners of each plot contains options to zoom in, zoom out, pan, and download the plot as a png. To alter which parties or data series are shown in each visualization, simply hover over and click on the legend labels to add and remove parties (or whatever variable corresponds to the legend, such as gender). Additionally, you can hover over each of the data points in any plot to gain additional information (such as the precise x and/or y value corrresponding to that data point). In order to compare values of y across a set values of x (e.g.for each party), navigate to the top corner of the plot and select the "compare data on hover" option. Next, hover over a data point that corresponds to an x value you are interested in to compare across values of y.
+<br>
+<br>
+
+#### About the Author
+
+All data collection, analyses, and the creation of this website have been done by Vanna Lodders. I am a graduate student completing my Master's in Political Science at Simon Fraser University. In addition to my academic pursuits, I use her knowledge of quantitative methods and data science skills working for a national public opinion polling and market research company in Vancouver. You may notice that the website pays special attention to gender differences in Twitter campaigns in addition to differences across parties. With an extended minor in Gender, Sexuality, and Women's Studies, I have always incorporated gender dimensions into my political analysis. Overall, this website has been created to show importannt gender and ideological differences in the campaign strategies of candidates for the House of Commons, in addition to housing my final Master's project.
+<br>
+<br>
+Further information regarding analyses and details on data collection can be accessed through the *Appendices* tab. If you have any questions or comments about the website, analyses, data collection, or otherwise, please contact *vlodders@sfu.ca*.  
+<br>
+[Learn more about my research](https://politicsofextremism.com/people/)  
+[Learn more about the Extremism and Democracy Research Group](https://politicsofextremism.com)  
+
+<br>
+
+#### Party-Level Account Prevalence Summary
+
+```{r options(knitr.kable.NA = ''), echo = FALSE, warning = FALSE}
+data_table <- read_xlsx("/Users/vannalodders/Desktop/Candidate Handles w Ethnicity.xlsx",
+                         sheet = "Data Methods Table")
+data_table$`Candidates Running (%)`<- data_table$`Candidates Running (%)`*100
+data_table$`Have Twitter (%)` <- data_table$`Have Twitter (%)`*100
+
+kable(data_table) %>%
+  kable_styling("striped", full_width = T) %>%
+  pack_rows("Liberal Party", 1, 3, label_row_css = "background-color: #8b1a1a; color: #fff;") %>%
+  pack_rows("Conservative Party", 4, 6, label_row_css = "background-color: #36648B; color: #fff;") %>%
+  pack_rows("New Democratic Party", 7, 9, label_row_css = "background-color: #CD6600; color: #fff;") %>%
+  pack_rows("Green Party", 10, 12, label_row_css = "background-color: #556B2F; color: #fff;") %>%
+  pack_rows("People's Party", 13, 15, label_row_css = "background-color: #000; color: #fff;")
+
+```
+
